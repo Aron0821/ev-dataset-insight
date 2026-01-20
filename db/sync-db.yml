@@ -1,0 +1,13 @@
+basePath: src
+connectionResolver: connection-resolver.js
+
+# sql:
+#   # Procedures
+#   - procedure/tst.sql
+
+# # Views
+# - view/vw_ev.sql
+
+migration:
+  directory: migrations
+  tableName: __ev_analysis_migrations

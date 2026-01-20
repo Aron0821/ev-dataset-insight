@@ -1,0 +1,12 @@
+{
+  "name": "db",
+  "version": "1.0.0",
+  "description": "",
+  "author": "aron0821",
+  "license": "ISC",
+  "dependencies": {
+    "@leapfrogtechnology/sync-db": "^2.2.0",
+    "dotenv": "^17.2.3",
+    "pg": "^8.17.1"
+  }
+}
