@@ -1,12 +1,15 @@
 basePath: src
 connectionResolver: connection-resolver.js
 
-# sql:
-#   # Procedures
-#   - procedure/tst.sql
+sql:
+  # Procedures
+  # Transform
+  - procedure/transform_electric_vehicle.sql
 
-# # Views
-# - view/vw_ev.sql
+  # Load
+  - procedure/load_location.sql
+  - procedure/load_model.sql
+  - procedure/load_vehicle.sql
 
 migration:
   directory: migrations
