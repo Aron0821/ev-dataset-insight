@@ -2,6 +2,7 @@ from src.scripts.extract import extract
 from src.scripts.transform import transform
 from src.scripts.load import load
 
+
 def display_ev_analysis():
     print("\n")
     print("▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓")
@@ -10,6 +11,7 @@ def display_ev_analysis():
     print("▓                                                 ▓")
     print("▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓")
     print("\n")
+
 
 def main():
     try:

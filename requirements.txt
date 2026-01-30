@@ -1,4 +1,7 @@
 black
+pandas
+plotly
 requests
 psycopg2
+streamlit
 python-dotenv
