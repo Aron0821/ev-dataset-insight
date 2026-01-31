@@ -4,4 +4,9 @@ plotly
 requests
 psycopg2
 streamlit
+langchain
+faiss-cpu 
 python-dotenv
+langchain-openai 
+langchain-community
+sentence-transformers

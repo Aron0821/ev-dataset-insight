@@ -6,6 +6,7 @@ import plotly.express as px
 from datetime import datetime
 import plotly.graph_objects as go
 
+
 # Add the parent directory to the path to import db_connection
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from db.src.scripts.util.db_connection import db_connect
@@ -322,15 +323,14 @@ def main():
     st.markdown("---")
 
     # Tabs for different visualizations
-    tab1, tab2, tab3, tab4, tab5 = st.tabs(
-        [
-            "📈 Trends",
-            "🏭 Manufacturers",
-            "🗺️ Geographic",
-            "⚡ Performance",
-            "📋 Data Table",
-        ]
-    )
+    tab1, tab2, tab3, tab4, tab5, tab6 = st.tabs([
+        "📈 Trends",
+        "🏭 Manufacturers",
+        "🗺️ Geographic",
+        "⚡ Performance",
+        "📋 Data Table",
+        "🤖 AI Analyst"
+    ])
 
     with tab1:
         st.subheader("Vehicle Registration Trends")
@@ -541,70 +541,159 @@ def main():
     with tab4:
         st.subheader("Electric Range Analysis")
 
-        # Remove zero or null ranges for meaningful analysis
+        # Check if there's any range data
+        total_with_range = filtered_df[filtered_df["electric_range"] > 0][
+            "vehicle_count"
+        ].sum()
+        total_vehicles = filtered_df["vehicle_count"].sum()
+
+        st.info(
+            f"📊 {int(total_with_range):,} out of {int(total_vehicles):,} vehicles have reported electric range data ({total_with_range/total_vehicles*100:.1f}%)"
+        )
+
+        # Separate data into BEV and PHEV for better analysis
+        bev_df = filtered_df[
+            filtered_df["ev_type"] == "Battery Electric Vehicle (BEV)"
+        ].copy()
+        phev_df = filtered_df[
+            filtered_df["ev_type"] == "Plug-in Hybrid Electric Vehicle (PHEV)"
+        ].copy()
+
+        # Remove zero ranges for BEVs (should all have range)
+        bev_range_df = bev_df[bev_df["electric_range"] > 0].copy()
+        # For PHEVs, include all since many may have 0 reported range
+        phev_range_df = phev_df[phev_df["electric_range"] > 0].copy()
+
+        # Combine for overall analysis
         range_df = filtered_df[filtered_df["electric_range"] > 0].copy()
 
+        if not range_df.empty:
+            col1, col2 = st.columns(2)
+
+            with col1:
+                # Range distribution - expand for histogram
+                range_expanded = []
+                for _, row in range_df.iterrows():
+                    range_expanded.extend(
+                        [row["electric_range"]] * int(row["vehicle_count"])
+                    )
+
+                fig10 = px.histogram(
+                    x=range_expanded,
+                    nbins=50,
+                    labels={"x": "Electric Range (miles)"},
+                    title=f"Electric Range Distribution ({len(range_expanded):,} vehicles)",
+                )
+                fig10.update_traces(marker_color="#17becf")
+                st.plotly_chart(fig10, use_container_width=True)
+
+            with col2:
+                # Average range by make (top 10) - weighted average
+                # Calculate weighted average manually for each make
+                make_stats = []
+                for make in range_df["make"].unique():
+                    make_data = range_df[range_df["make"] == make]
+                    if len(make_data) > 0 and make_data["vehicle_count"].sum() > 0:
+                        weighted_avg = (
+                            make_data["electric_range"] * make_data["vehicle_count"]
+                        ).sum() / make_data["vehicle_count"].sum()
+                        total_count = make_data["vehicle_count"].sum()
+                        make_stats.append(
+                            {
+                                "make": make,
+                                "avg_range": weighted_avg,
+                                "count": total_count,
+                            }
+                        )
+
+                if make_stats:
+                    make_range = pd.DataFrame(make_stats)
+                    make_range = make_range.sort_values(
+                        "avg_range", ascending=False
+                    ).head(10)
+
+                    fig11 = px.bar(
+                        make_range,
+                        x="avg_range",
+                        y="make",
+                        orientation="h",
+                        labels={"avg_range": "Average Range (miles)", "make": "Make"},
+                        title="Average Range by Manufacturer (Top 10)",
+                        hover_data=["count"],
+                    )
+                    fig11.update_traces(marker_color="#bcbd22")
+                    st.plotly_chart(fig11, use_container_width=True)
+                else:
+                    st.warning("No range data available for manufacturers")
+
+            # Range trend over years - weighted average
+            year_stats = []
+            for year in sorted(range_df["model_year"].unique()):
+                year_data = range_df[range_df["model_year"] == year]
+                if len(year_data) > 0 and year_data["vehicle_count"].sum() > 0:
+                    weighted_avg = (
+                        year_data["electric_range"] * year_data["vehicle_count"]
+                    ).sum() / year_data["vehicle_count"].sum()
+                    year_stats.append({"model_year": year, "avg_range": weighted_avg})
+
+            if year_stats:
+                year_range_data = pd.DataFrame(year_stats)
+
+                fig12 = px.line(
+                    year_range_data,
+                    x="model_year",
+                    y="avg_range",
+                    title="Average Electric Range Trend Over Years",
+                    labels={
+                        "model_year": "Model Year",
+                        "avg_range": "Average Range (miles)",
+                    },
+                    markers=True,
+                )
+                fig12.update_traces(line_color="#e377c2", line_width=3)
+                st.plotly_chart(fig12, use_container_width=True)
+            else:
+                st.warning("No range data available for year trend")
+        else:
+            st.warning("⚠️ No electric range data available for the selected filters.")
+            st.info(
+                "💡 Tip: Many Plug-in Hybrid Electric Vehicles (PHEV) have 0 or unreported electric range. Try filtering by 'Battery Electric Vehicle (BEV)' for better range analysis."
+            )
+
+        # EV Type breakdown - always show this
+        st.subheader("Vehicle Type Distribution")
         col1, col2 = st.columns(2)
 
         with col1:
-            # Range distribution - expand for histogram
-            range_expanded = []
-            for _, row in range_df.iterrows():
-                range_expanded.extend(
-                    [row["electric_range"]] * int(row["vehicle_count"])
-                )
-
-            fig10 = px.histogram(
-                x=range_expanded,
-                nbins=50,
-                labels={"x": "Electric Range (miles)"},
-                title="Electric Range Distribution",
+            # EV type counts
+            ev_type_counts = filtered_df.groupby("ev_type")["vehicle_count"].sum()
+            fig_ev_type = px.pie(
+                values=ev_type_counts.values,
+                names=ev_type_counts.index,
+                title="BEV vs PHEV Distribution",
             )
-            fig10.update_traces(marker_color="#17becf")
-            st.plotly_chart(fig10, use_container_width=True)
+            st.plotly_chart(fig_ev_type, use_container_width=True)
 
         with col2:
-            # Average range by make (top 10) - weighted average
-            make_range_series = range_df.groupby("make").apply(
-                lambda x: (x["electric_range"] * x["vehicle_count"]).sum()
-                / x["vehicle_count"].sum()
+            # Show statistics
+            st.metric(
+                "Battery Electric (BEV)", f"{int(bev_df['vehicle_count'].sum()):,}"
             )
-            make_range = (
-                make_range_series.sort_values(ascending=False).head(10).reset_index()
+            st.metric(
+                "Plug-in Hybrid (PHEV)", f"{int(phev_df['vehicle_count'].sum()):,}"
             )
-            make_range.columns = ["make", "avg_range"]
 
-            fig11 = px.bar(
-                make_range,
-                x="avg_range",
-                y="make",
-                orientation="h",
-                labels={"avg_range": "Average Range (miles)", "make": "Make"},
-                title="Average Range by Manufacturer (Top 10)",
-            )
-            fig11.update_traces(marker_color="#bcbd22")
-            st.plotly_chart(fig11, use_container_width=True)
+            if not bev_range_df.empty:
+                bev_avg = (
+                    bev_range_df["electric_range"] * bev_range_df["vehicle_count"]
+                ).sum() / bev_range_df["vehicle_count"].sum()
+                st.metric("Avg BEV Range", f"{bev_avg:.0f} mi")
 
-        # Range trend over years - weighted average
-        year_range = (
-            range_df.groupby("model_year")
-            .apply(
-                lambda x: (x["electric_range"] * x["vehicle_count"]).sum()
-                / x["vehicle_count"].sum()
-            )
-            .reset_index()
-        )
-        year_range.columns = ["model_year", "avg_range"]
-
-        fig12 = px.line(
-            year_range,
-            x="model_year",
-            y="avg_range",
-            title="Average Electric Range Trend Over Years",
-            labels={"model_year": "Model Year", "avg_range": "Average Range (miles)"},
-        )
-        fig12.update_traces(line_color="#e377c2", line_width=3)
-        st.plotly_chart(fig12, use_container_width=True)
+            if not phev_range_df.empty:
+                phev_avg = (
+                    phev_range_df["electric_range"] * phev_range_df["vehicle_count"]
+                ).sum() / phev_range_df["vehicle_count"].sum()
+                st.metric("Avg PHEV Range", f"{phev_avg:.0f} mi")
 
         # CAFV Eligibility
         st.subheader("Clean Alternative Fuel Vehicle (CAFV) Eligibility")
@@ -688,6 +777,56 @@ def main():
                     )
         else:
             st.warning("No data found matching the current filters.")
+    
+    with tab6:
+        st.subheader("AI Electric Vehicle Analyst")
+
+        retriever, llm = load_rag()
+
+        if "messages" not in st.session_state:
+            st.session_state.messages = []
+
+        for msg in st.session_state.messages:
+            with st.chat_message(msg["role"]):
+                st.write(msg["content"])
+
+        if prompt := st.chat_input("Ask anything about EV data..."):
+
+            st.session_state.messages.append({"role": "user", "content": prompt})
+
+            with st.chat_message("user"):
+                st.write(prompt)
+
+            with st.chat_message("assistant"):
+                with st.spinner("Analyzing EV dataset..."):
+
+                    docs = retriever.invoke(prompt)
+
+                    context = "\n\n".join(
+                        [d.page_content for d in docs]
+                    )
+
+                    final_prompt = f"""
+                    You are an EV data expert.
+
+                    Answer ONLY using this dataset.
+                    If unknown, say you couldn't find it.
+
+                    DATA:
+                    {context}
+
+                    QUESTION:
+                    {prompt}
+                    """
+
+                    response = llm.invoke(final_prompt).content
+                    st.write(response)
+
+            st.session_state.messages.append(
+                {"role": "assistant", "content": response}
+            )
+
+
 
     # Footer
     st.markdown("---")
@@ -699,6 +838,28 @@ def main():
         """,
         unsafe_allow_html=True,
     )
+
+
+@st.cache_resource
+def load_rag():
+
+    from langchain_groq import ChatGroq
+    from chatbot.retriever import load_vector_store
+
+    vector_db = load_vector_store()
+
+    retriever = vector_db.as_retriever(search_kwargs={"k": 5})
+
+    llm = ChatGroq(
+        groq_api_key=os.getenv("GROQ_API_KEY"),
+        model="llama-3.1-8b-instant",
+        temperature=0
+    )
+
+    return retriever, llm
+
+
+    
 
 
 if __name__ == "__main__":
