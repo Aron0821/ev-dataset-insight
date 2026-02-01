@@ -1,6 +1,9 @@
+uv
 black
 pandas
 plotly
+uvicorn
+fastapi
 requests
 psycopg2
 streamlit

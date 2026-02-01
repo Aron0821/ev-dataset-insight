@@ -5,7 +5,7 @@ import streamlit as st
 import plotly.express as px
 from datetime import datetime
 import plotly.graph_objects as go
-
+import requests
 # Add the parent directory to the path to import db_connection
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from db.src.scripts.util.db_connection import db_connect
@@ -779,21 +779,80 @@ def main():
         else:
             st.warning("No data found matching the current filters.")
 
+    # with tab6:
+    #     st.subheader("AI Electric Vehicle Analyst")
+
+    #     retriever, llm = load_rag()
+
+    #     if "messages" not in st.session_state:
+    #         st.session_state.messages = []
+
+    #     for msg in st.session_state.messages:
+    #         with st.chat_message(msg["role"]):
+    #             st.write(msg["content"])
+
+    #     if prompt := st.chat_input("Ask anything about EV data..."):
+
+    #         st.session_state.messages.append({"role": "user", "content": prompt})
+
+    #         with st.chat_message("user"):
+    #             st.write(prompt)
+
+    #         with st.chat_message("assistant"):
+    #             with st.spinner("Analyzing EV dataset..."):
+
+    #                 docs = retriever.invoke(prompt)
+
+    #                 context = "\n\n".join([d.page_content for d in docs])
+
+    #                 final_prompt = f"""
+    #                 You are an EV data expert.
+
+    #                 Answer ONLY using this dataset.
+    #                 If unknown, say you couldn't find it.
+
+    #                 DATA:
+    #                 {context}
+
+    #                 QUESTION:
+    #                 {prompt}
+    #                 """
+
+    #                 response = llm.invoke(final_prompt).content
+    #                 st.write(response)
+
+    #         st.session_state.messages.append({"role": "assistant", "content": response})
+
+    # # Footer
+    # st.markdown("---")
+    # st.markdown(
+    #     """
+    #     <div style='text-align: center'>
+    #         <p>Electric Vehicles Analysis Dashboard | Data updated in real-time from database</p>
+    #     </div>
+    #     """,
+    #     unsafe_allow_html=True,
+    # )
+    API_URL = "http://localhost:8000/query"
+
     with tab6:
         st.subheader("AI Electric Vehicle Analyst")
-
-        retriever, llm = load_rag()
 
         if "messages" not in st.session_state:
             st.session_state.messages = []
 
+        # Render chat history
         for msg in st.session_state.messages:
             with st.chat_message(msg["role"]):
                 st.write(msg["content"])
 
         if prompt := st.chat_input("Ask anything about EV data..."):
 
-            st.session_state.messages.append({"role": "user", "content": prompt})
+            # Store user message
+            st.session_state.messages.append({
+                "role": "user",
+                "content": prompt
+            })
 
             with st.chat_message("user"):
                 st.write(prompt)
@@ -801,27 +860,33 @@ def main():
             with st.chat_message("assistant"):
                 with st.spinner("Analyzing EV dataset..."):
 
-                    docs = retriever.invoke(prompt)
+                    try:
+                        response = requests.post(
+                            API_URL,
+                            json={"question": prompt},
+                            timeout=60
+                        )
+                        response.raise_for_status()
 
-                    context = "\n\n".join([d.page_content for d in docs])
+                        data = response.json()
 
-                    final_prompt = f"""
-                    You are an EV data expert.
+                        # ✅ Extract ONLY the "content" field
+                        answer = data.get("answer")
+                        if isinstance(answer, dict) and "content" in answer:
+                            answer = answer["content"]
 
-                    Answer ONLY using this dataset.
-                    If unknown, say you couldn't find it.
+                        st.write(answer)
 
-                    DATA:
-                    {context}
+                    except Exception as e:
+                        answer = "Sorry, I couldn’t process that question right now."
+                        st.error(answer)
 
-                    QUESTION:
-                    {prompt}
-                    """
+            # Store assistant response
+            st.session_state.messages.append({
+                "role": "assistant",
+                "content": answer
+            })
 
-                    response = llm.invoke(final_prompt).content
-                    st.write(response)
-
-            st.session_state.messages.append({"role": "assistant", "content": response})
 
     # Footer
     st.markdown("---")
@@ -833,7 +898,6 @@ def main():
         """,
         unsafe_allow_html=True,
     )
-
 
 @st.cache_resource
 def load_rag():
