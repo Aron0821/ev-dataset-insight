@@ -7,6 +7,6 @@ streamlit
 langchain
 faiss-cpu 
 python-dotenv
-langchain-openai 
+langchain-groq
 langchain-community
-sentence-transformers
+sentence-transformers   

@@ -6,7 +6,6 @@ import plotly.express as px
 from datetime import datetime
 import plotly.graph_objects as go
 
-
 # Add the parent directory to the path to import db_connection
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from db.src.scripts.util.db_connection import db_connect
@@ -323,14 +322,16 @@ def main():
     st.markdown("---")
 
     # Tabs for different visualizations
-    tab1, tab2, tab3, tab4, tab5, tab6 = st.tabs([
-        "📈 Trends",
-        "🏭 Manufacturers",
-        "🗺️ Geographic",
-        "⚡ Performance",
-        "📋 Data Table",
-        "🤖 AI Analyst"
-    ])
+    tab1, tab2, tab3, tab4, tab5, tab6 = st.tabs(
+        [
+            "📈 Trends",
+            "🏭 Manufacturers",
+            "🗺️ Geographic",
+            "⚡ Performance",
+            "📋 Data Table",
+            "🤖 AI Analyst",
+        ]
+    )
 
     with tab1:
         st.subheader("Vehicle Registration Trends")
@@ -777,7 +778,7 @@ def main():
                     )
         else:
             st.warning("No data found matching the current filters.")
-    
+
     with tab6:
         st.subheader("AI Electric Vehicle Analyst")
 
@@ -802,9 +803,7 @@ def main():
 
                     docs = retriever.invoke(prompt)
 
-                    context = "\n\n".join(
-                        [d.page_content for d in docs]
-                    )
+                    context = "\n\n".join([d.page_content for d in docs])
 
                     final_prompt = f"""
                     You are an EV data expert.
@@ -822,11 +821,7 @@ def main():
                     response = llm.invoke(final_prompt).content
                     st.write(response)
 
-            st.session_state.messages.append(
-                {"role": "assistant", "content": response}
-            )
-
-
+            st.session_state.messages.append({"role": "assistant", "content": response})
 
     # Footer
     st.markdown("---")
@@ -853,13 +848,10 @@ def load_rag():
     llm = ChatGroq(
         groq_api_key=os.getenv("GROQ_API_KEY"),
         model="llama-3.1-8b-instant",
-        temperature=0
+        temperature=0,
     )
 
     return retriever, llm
-
-
-    
 
 
 if __name__ == "__main__":
