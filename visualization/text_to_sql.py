@@ -1,10 +1,10 @@
-import psycopg2
-import openai
-from dotenv import load_dotenv
 import os
+import re
+import psycopg2
+from dotenv import load_dotenv
 from langchain_groq import ChatGroq
 from langchain_classic.schema import HumanMessage
-import re
+
 load_dotenv()
 
 
@@ -20,6 +20,7 @@ def db_connect():
 
     return conn
 
+
 # Load environment variables
 load_dotenv()
 llm = ChatGroq(
@@ -27,15 +28,8 @@ llm = ChatGroq(
     model="llama-3.1-8b-instant",
     temperature=0,
 )
-# # PostgreSQL connection
-# def db_connect():
-#     return psycopg2.connect(
-#         dbname="your_db_name",
-#         user="your_user",
-#         password="your_password",
-#         host="localhost",
-#         port="5432"
-#     )
+
+
 def extract_schema(conn, schema_name="public") -> str:
     """
     Extracts PostgreSQL schema in LLM-friendly format.
@@ -68,6 +62,7 @@ def extract_schema(conn, schema_name="public") -> str:
 
     return schema_text.strip()
 
+
 # Prompt template for NL → SQL
 def build_prompt(user_query: str, schema_text: str) -> str:
     return f"""
@@ -88,19 +83,17 @@ USER QUERY:
 {user_query}
 """
 
+
 # Generate SQL from natural language
 def nl_to_sql(nl_query: str):
     conn = db_connect()
     schema_text = extract_schema(conn)
     prompt = build_prompt(nl_query, schema_text)
-    
-    response = llm.invoke([
-        HumanMessage(content=prompt)
-    ])
+
+    response = llm.invoke([HumanMessage(content=prompt)])
 
     sql_query = response.content.strip()  # Extract the SQL string
     return sql_query
-
 
 
 # Execute SQL in PostgreSQL
@@ -119,6 +112,8 @@ def execute_sql(sql_query: str):
         cur.close()
         conn.close()
     return result
+
+
 def clean_sql(llm_output: str) -> str:
     """
     Extracts ONLY the first SQL query from LLM output and
@@ -127,9 +122,7 @@ def clean_sql(llm_output: str) -> str:
 
     # 1️⃣ Extract first ```sql ... ``` block
     sql_block = re.search(
-        r"```sql\s*(.*?)\s*```",
-        llm_output,
-        flags=re.IGNORECASE | re.DOTALL
+        r"```sql\s*(.*?)\s*```", llm_output, flags=re.IGNORECASE | re.DOTALL
     )
 
     if sql_block:
@@ -137,9 +130,7 @@ def clean_sql(llm_output: str) -> str:
     else:
         # 2️⃣ Fallback: first SELECT/WITH statement
         select_stmt = re.search(
-            r"\b(select|with)\b[\s\S]*?(?=;|\Z)",
-            llm_output,
-            flags=re.IGNORECASE
+            r"\b(select|with)\b[\s\S]*?(?=;|\Z)", llm_output, flags=re.IGNORECASE
         )
 
         if not select_stmt:
@@ -157,9 +148,11 @@ def clean_sql(llm_output: str) -> str:
     sql = sql.replace("```", "").replace("`", "")
 
     # Remove wrapping single or double quotes
-    sql = re.sub(r'^[\'"]+|[\'"]+$', '', sql)
+    sql = re.sub(r'^[\'"]+|[\'"]+$', "", sql)
 
     return sql.strip()
+
+
 def build_interpretation_prompt(user_query, sql_result):
     return f"""
 You are a data analyst assistant.
@@ -179,11 +172,13 @@ DATA RESULT:
 
 FINAL ANSWER:
 """
+
+
 def interprate_final_result(interpretation_prompt):
-    final_response = llm.invoke([
-        HumanMessage(content=interpretation_prompt)
-    ])
+    final_response = llm.invoke([HumanMessage(content=interpretation_prompt)])
     return final_response
+
+
 # Main
 if __name__ == "__main__":
     user_query = input("Enter your natural language query: ")
@@ -196,6 +191,5 @@ if __name__ == "__main__":
     interpretation_prompt = build_interpretation_prompt(user_query, results)
 
     final_response = interprate_final_result(interpretation_prompt)
-    print("-"*80)
+    print("-" * 80)
     print(final_response.content)
-

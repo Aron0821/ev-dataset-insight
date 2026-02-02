@@ -6,6 +6,7 @@ import plotly.express as px
 from datetime import datetime
 import plotly.graph_objects as go
 import requests
+
 # Add the parent directory to the path to import db_connection
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from db.src.scripts.util.db_connection import db_connect
@@ -849,10 +850,7 @@ def main():
         if prompt := st.chat_input("Ask anything about EV data..."):
 
             # Store user message
-            st.session_state.messages.append({
-                "role": "user",
-                "content": prompt
-            })
+            st.session_state.messages.append({"role": "user", "content": prompt})
 
             with st.chat_message("user"):
                 st.write(prompt)
@@ -862,9 +860,7 @@ def main():
 
                     try:
                         response = requests.post(
-                            API_URL,
-                            json={"question": prompt},
-                            timeout=60
+                            API_URL, json={"question": prompt}, timeout=60
                         )
                         response.raise_for_status()
 
@@ -882,11 +878,7 @@ def main():
                         st.error(answer)
 
             # Store assistant response
-            st.session_state.messages.append({
-                "role": "assistant",
-                "content": answer
-            })
-
+            st.session_state.messages.append({"role": "assistant", "content": answer})
 
     # Footer
     st.markdown("---")
@@ -898,6 +890,7 @@ def main():
         """,
         unsafe_allow_html=True,
     )
+
 
 @st.cache_resource
 def load_rag():
