@@ -1,5 +1,6 @@
 uv
 black
+numpy
 pandas
 plotly
 uvicorn
@@ -9,6 +10,7 @@ psycopg2
 streamlit
 langchain
 faiss-cpu 
+scikit-learn
 python-dotenv
 langchain-groq
 langchain-community
