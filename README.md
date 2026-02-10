@@ -252,13 +252,37 @@ EV-DATASET-INSIGHT/
 │   └── index.pkl                            Metadata & mappings
 │
 ├── 📁 visualization/                        Streamlit Dashboard
-│   ├── 📁 chatbot/                          AI Chatbot Module
-│   │   ├── retriever.py                     Document retrieval logic
-│   │   └── vector_store.py                  FAISS management
-│   ├── app.py                               Main dashboard (8 tabs)
-│   ├── main.py                              FastAPI server
-│   ├── text_to_sql.py                       Natural language to SQL
-│   └── vector_db.py                         Vector DB builder
+|   ├── 📁 chatbot/
+|   │   ├── retriever.py                     Vector search & context
+|   │   └── vector_store.py                  Embeddings & vector database
+|   ├── 📁 components/
+|   │   ├── 📁 tabs/                         Individual features
+|   │   │   ├── __init__.py
+|   │   │   ├── ai_analyst.py
+|   │   │   ├── data_table.py
+|   │   │   ├── forecast.py
+|   │   │   ├── geographic.py
+|   │   │   ├── manufacturers.py
+|   │   │   ├── performance.py
+|   │   │   ├── prediction.py
+|   │   │   └── trends.py
+|   │   ├── __init__.py
+|   │   ├── metrics.py
+|   │   └── sidebar.py
+|   ├── 📁 config/
+|   │   ├── __init__.py
+|   │   └── page_config.py
+|   ├── 📁 utils/
+|   │   ├── __init__.py
+|   │   ├── data_loader.py                   All SQL queries
+|   │   ├── database.py                      PostgreSQL connection handler
+|   │   ├── map_debug.py
+|   │   └── ml_models.py                     ML training/prediction
+|   ├── app.py                               Main application (loads everything)    
+|   ├── main.py
+|   ├── text_to_sql.py
+|   ├── vector_db.py
+|   └── verify_setup.py                      Vector DB builder
 │
 ├── 📁 image/                                Screenshots
 │   ├── Overview.png
@@ -362,7 +386,7 @@ pip install -r requirements.txt
 
 **4. Configure environment**
 ```bash
-cp .env.example .env
+cp .env_example .env
 # Edit .env with your credentials:
 # - DATABASE_URL=postgresql://user:password@localhost:5432/ev_db
 # - GROQ_API_KEY=your_groq_api_key
