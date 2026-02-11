@@ -19,6 +19,7 @@ python main.py
 ```
 visualization/
 ├── 📁 chatbot/
+│   └── intelligent_chatbot.py
 │   ├── retriever.py
 │   └── vector_store.py
 ├── 📁 components/
@@ -47,6 +48,7 @@ visualization/
 ├── README.md
 ├── app.py
 ├── main.py
+├── test_chatbot.py
 ├── text_to_sql.py
 ├── vector_db.py
 └── verify_setup.py

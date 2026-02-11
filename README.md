@@ -255,6 +255,7 @@ EV-DATASET-INSIGHT/
 |   ├── 📁 chatbot/
 |   │   ├── retriever.py                     Vector search & context
 |   │   └── vector_store.py                  Embeddings & vector database
+|   │   └── intelligent_chatbot.py           
 |   ├── 📁 components/
 |   │   ├── 📁 tabs/                         Individual features
 |   │   │   ├── __init__.py
@@ -280,6 +281,7 @@ EV-DATASET-INSIGHT/
 |   │   └── ml_models.py                     ML training/prediction
 |   ├── app.py                               Main application (loads everything)    
 |   ├── main.py
+|   ├── test_chatbot.py
 |   ├── text_to_sql.py
 |   ├── vector_db.py
 |   └── verify_setup.py                      Vector DB builder
