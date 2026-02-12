@@ -2,14 +2,16 @@
 """
 Verification script to check if all required files are in place
 """
+
 import os
 import sys
 
+
 def check_file_structure():
     """Check if all required files exist"""
-    
+
     base_dir = os.path.dirname(os.path.abspath(__file__))
-    
+
     required_files = [
         "app.py",
         "requirements.txt",
@@ -35,10 +37,10 @@ def check_file_structure():
         "components/tabs/prediction.py",
         "components/tabs/forecast.py",
     ]
-    
+
     print("Checking file structure...")
     print("=" * 60)
-    
+
     missing_files = []
     for file_path in required_files:
         full_path = os.path.join(base_dir, file_path)
@@ -47,9 +49,9 @@ def check_file_structure():
         else:
             print(f"❌ {file_path} - MISSING")
             missing_files.append(file_path)
-    
+
     print("=" * 60)
-    
+
     if missing_files:
         print(f"\n⚠️  {len(missing_files)} file(s) missing!")
         print("\nMissing files:")
@@ -61,6 +63,7 @@ def check_file_structure():
         print("\nYou can now run the dashboard with:")
         print("  streamlit run app.py")
         return True
+
 
 if __name__ == "__main__":
     success = check_file_structure()

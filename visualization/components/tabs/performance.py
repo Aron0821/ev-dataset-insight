@@ -34,7 +34,9 @@ def render_performance_tab(filtered_df):
         with col1:
             range_expanded = []
             for _, row in range_df.iterrows():
-                range_expanded.extend([row["electric_range"]] * int(row["vehicle_count"]))
+                range_expanded.extend(
+                    [row["electric_range"]] * int(row["vehicle_count"])
+                )
 
             fig10 = px.histogram(
                 x=range_expanded,

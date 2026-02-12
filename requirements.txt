@@ -1,17 +1,18 @@
-uv
-black
-numpy
-pandas
-plotly
-uvicorn
-fastapi
-requests
-psycopg2
-streamlit
-langchain
-faiss-cpu 
-scikit-learn
-python-dotenv
-langchain-groq
-langchain-community
-sentence-transformers   
+# Core Dependencies
+python-dotenv        # .env file support
+numpy                # Core computing
+pandas               # Data manipulation
+
+# Database
+psycopg2-binary      # PostgreSQL (changed from psycopg2)
+
+# Web Framework & Visualization
+streamlit            # Dashboard
+plotly               # Charts
+
+# AI/ML
+groq                 # Direct Groq AI (new!)
+scikit-learn         # ML models
+
+# Development Tools (optional)
+black                # Code formatter

@@ -92,10 +92,10 @@ def render_geographic_tab(filtered_df):
                 if not map_df.empty:
                     if limit:
                         st.success(
-                            f"✅ Loaded {len(map_df):,} sample locations (random selection)"
+                            f"Loaded {len(map_df):,} sample locations (random selection)"
                         )
                     else:
-                        st.success(f"✅ Loaded all {len(map_df):,} vehicle locations")
+                        st.success(f"Loaded all {len(map_df):,} vehicle locations")
 
                     fig9 = px.scatter_mapbox(
                         map_df,
@@ -112,25 +112,21 @@ def render_geographic_tab(filtered_df):
                 else:
                     st.error("❌ No valid coordinates found after filtering")
                     st.warning("**Troubleshooting steps:**")
-                    st.markdown(
-                        """
+                    st.markdown("""
                     1. Click **"Debug Map Data"** above to check your database
                     2. Verify that `vehicle_location` column has data
                     3. Check that coordinates are in valid format (POINT(longitude latitude))
-                    """
-                    )
+                    """)
             else:
                 st.warning("⚠️ No location data available for mapping")
                 st.info("**Possible reasons:**")
-                st.markdown(
-                    """
+                st.markdown("""
                 - The `vehicle_location` column is NULL for all records
                 - The POINT data format couldn't be parsed
                 - Database connection issue
                 
                 **👉 Click "Debug Map Data" above to investigate**
-                """
-                )
+                """)
     else:
         st.info(
             "👆 Select your preferred data size and click 'Load Map' to view the interactive map"
