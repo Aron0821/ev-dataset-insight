@@ -278,6 +278,7 @@ EV-DATASET-INSIGHT/
 │   │
 │   ├── 📁 utils/                            Helper Utilities
 │   │   ├── __init__.py
+│   │   ├── chart_theme.py                   Shared chart styling and color theme
 │   │   ├── data_loader.py                   SQL queries & data fetching
 │   │   ├── database.py                      PostgreSQL connection handler
 │   │   ├── map_debug.py                     Map visualization helpers

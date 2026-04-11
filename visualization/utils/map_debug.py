@@ -47,7 +47,7 @@ def debug_map_data():
         LIMIT 5
         """
         sample_df = pd.read_sql(sample_query, conn)
-        st.dataframe(sample_df, use_container_width=True)
+        st.dataframe(sample_df, width="stretch")
 
         # Check 3: Test POINT parsing on sample
         if not sample_df.empty:
@@ -91,7 +91,7 @@ def debug_map_data():
         ORDER BY ordinal_position
         """
         schema_df = pd.read_sql(schema_query, conn)
-        st.dataframe(schema_df, use_container_width=True)
+        st.dataframe(schema_df, width="stretch")
 
         # Check 5: Test actual query used by map
         st.write("### 🗺️ Map Query Test (First 3 Results)")
@@ -110,7 +110,7 @@ def debug_map_data():
         LIMIT 3
         """
         test_df = pd.read_sql(test_query, conn)
-        st.dataframe(test_df, use_container_width=True)
+        st.dataframe(test_df, width="stretch")
 
         st.success("✅ Debug check complete!")
 

@@ -44,7 +44,7 @@ def render_data_table_tab(filter_values):
         )
 
     if not display_df.empty:
-        st.dataframe(display_df, use_container_width=True, height=400)
+        st.dataframe(display_df, width="stretch", height=400)
 
         total_pages = (total_count + rows_per_page - 1) // rows_per_page
         start_row = offset + 1

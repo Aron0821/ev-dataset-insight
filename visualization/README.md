@@ -226,7 +226,7 @@ def render_my_feature_tab(filtered_df):
     # Example chart
     import plotly.express as px
     fig = px.bar(filtered_df.head(10), x='make', y='electric_range')
-    st.plotly_chart(fig, use_container_width=True)
+    st.plotly_chart(fig, width="stretch")
 ```
 
 ### Step 2: Import in app.py

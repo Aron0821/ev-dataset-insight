@@ -130,7 +130,7 @@ def render_prediction_tab(df):
                 orientation="h",
                 title="Which factors matter most for predicting range?",
             )
-            st.plotly_chart(fig_imp, use_container_width=True)
+            st.plotly_chart(fig_imp, width="stretch")
         else:
             st.info("👆 Click 'Train Prediction Model' to get started")
     else:

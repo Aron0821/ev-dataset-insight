@@ -45,7 +45,7 @@ def render_performance_tab(filtered_df):
                 title=f"Electric Range Distribution ({len(range_expanded):,} vehicles)",
             )
             fig10.update_traces(marker_color="#17becf")
-            st.plotly_chart(fig10, use_container_width=True)
+            st.plotly_chart(fig10, width="stretch")
 
         with col2:
             make_stats = []
@@ -80,7 +80,7 @@ def render_performance_tab(filtered_df):
                     hover_data=["count"],
                 )
                 fig11.update_traces(marker_color="#bcbd22")
-                st.plotly_chart(fig11, use_container_width=True)
+                st.plotly_chart(fig11, width="stretch")
             else:
                 st.warning("No range data available for manufacturers")
 
@@ -108,9 +108,10 @@ def render_performance_tab(filtered_df):
                 markers=True,
             )
             fig12.update_traces(line_color="#e377c2", line_width=3)
-            st.plotly_chart(fig12, use_container_width=True)
+            st.plotly_chart(fig12, width="stretch")
         else:
             st.warning("No range data available for year trend")
+
     else:
         st.warning("⚠️ No electric range data available for the selected filters.")
         st.info(
@@ -127,7 +128,7 @@ def render_performance_tab(filtered_df):
             names=ev_type_counts.index,
             title="BEV vs PHEV Distribution",
         )
-        st.plotly_chart(fig_ev_type, use_container_width=True)
+        st.plotly_chart(fig_ev_type, width="stretch")
 
     with col2:
         st.metric("Battery Electric (BEV)", f"{int(bev_df['vehicle_count'].sum()):,}")
@@ -147,9 +148,10 @@ def render_performance_tab(filtered_df):
 
     st.subheader("Clean Alternative Fuel Vehicle (CAFV) Eligibility")
     cafv_counts = filtered_df.groupby("cafv_eligibility")["vehicle_count"].sum()
+
     fig13 = px.pie(
         values=cafv_counts.values,
         names=cafv_counts.index,
         title="CAFV Eligibility Distribution",
     )
-    st.plotly_chart(fig13, use_container_width=True)
+    st.plotly_chart(fig13, width="stretch")
